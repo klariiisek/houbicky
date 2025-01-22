@@ -3,7 +3,10 @@ let muchomurkaImage;
 let hribImage;
 let kosikImage;
 let backgroundImage;
+let hamSound;
+let endSound;
 let kosik;
+let gameOver = false;
 
 class Kosik {
   constructor(x, y) {
@@ -12,7 +15,7 @@ class Kosik {
     this.width = 100;
     this.height = 100;
     this.speed = 5;
-    this.points = 0;
+    this.points = 3; // Počáteční počet bodů
     this.color = color(random(255), random(255), random(255));
   }
 
@@ -24,6 +27,10 @@ class Kosik {
       fill(this.color);
       rect(this.x, this.y, this.width, this.height);
     }
+    // Zobrazení počtu bodů
+    textSize(32);
+    fill(255);
+    text('Body: ' + this.points, 10, 30);
   }
 
   move(dx, dy) {
@@ -71,14 +78,19 @@ function preload() {
   hribImage = loadImage('hrib.png');
   kosikImage = loadImage('kosik.png');
   backgroundImage = loadImage('les.jpg');
+  hamSound = loadSound('ham.wav');
+  endSound = loadSound('konecHry.wav');
 }
 
 function setup() {
   createCanvas(800, 800);
   kosik = new Kosik(400, 750);
+  document.getElementById("restart-button").onclick = restartGame;
 }
 
 function draw() {
+  if (gameOver) return;
+
   if (backgroundImage) {
     imageMode(CORNER);
     image(backgroundImage, 0, 0, width, height);
@@ -91,10 +103,20 @@ function draw() {
     houby[i].update();
     houby[i].draw();
     if (kosik.detectCollision(houby[i])) {
-        
-      kosik.points++;
+      if (houby[i].image === hribImage) {
+        kosik.points++;
+        hamSound.play();
+        // Přičítání bodu za hříbek
+      } else if (houby[i].image === muchomurkaImage) {
+        kosik.points--;
+        hamSound.play();
+        // Odečítání bodu za muchomůrku
+      }
       houby.splice(i, 1);
-      console.log(kosik.points);
+      if (kosik.points < 1) {
+        endSound.play();
+        endGame();
+      }
     } else if (houby[i].y > height + 20) {
       houby.splice(i, 1);
     }
@@ -113,4 +135,16 @@ function draw() {
     kosik.move(0, 1);
   }
   kosik.draw();
+}
+
+function endGame() {
+  gameOver = true;
+  document.getElementById("restart-button").style.display = "block";
+}
+
+function restartGame() {
+  gameOver = false;
+  kosik = new Kosik(400, 750);
+  houby = [];
+  document.getElementById("restart-button").style.display = "none";
 }
