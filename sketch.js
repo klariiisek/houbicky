@@ -34,8 +34,8 @@ class Kosik {
   }
 
   move(dx, dy) {
-    this.x = constrain(this.x + dx * this.speed, width/2, width/2 - this.width/2);
-    this.y = constrain(this.y + dy * this.speed, height/2, height/2 - this.height/2);
+    this.x = constrain(this.x + dx * this.speed, this.width/2, width - this.width/2);
+    this.y = constrain(this.y + dy * this.speed, this.height/2, height - this.height/2);
   }
 
   detectCollision(houba) {
